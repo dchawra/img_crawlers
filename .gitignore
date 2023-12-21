@@ -1,4 +1,4 @@
-/images.tsv
-/proxies_uname.txt
-/urls.txt
+**/images.tsv
+**/*proxies*
+**/*url*
 .idea/
