@@ -16,13 +16,13 @@ def run_spider(url):
     print(f"Spider for {url} submitted. Job ID: {response.json().get('jobid')}")
 
 def main():
-    # List of URLs to scrape re
+    urls = []
+    with open("urls.txt", "r") as f:
+        urls = f.readlines()
 
-    # Set the number of threads you want to use
-    num_threads = 5
-
-    with ThreadPoolExecutor(max_workers=num_threads) as executor:
-        executor.map(run_spider, urls)
+    # submit spiders, no need for threading
+    for url in urls[0]:
+        run_spider(url)
 
 if __name__ == "__main__":
     main()
