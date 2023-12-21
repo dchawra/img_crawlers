@@ -1,6 +1,6 @@
 **/images.tsv
 **/*prox*
-**/*url*
+# **/*url*
 .idea/
 **/build/
 **/__pycache__
