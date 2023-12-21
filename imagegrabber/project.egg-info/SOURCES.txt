@@ -1,0 +1,13 @@
+setup.py
+imagegrabber/__init__.py
+imagegrabber/items.py
+imagegrabber/middlewares.py
+imagegrabber/pipelines.py
+imagegrabber/settings.py
+imagegrabber/spiders/ImageGrab.py
+imagegrabber/spiders/__init__.py
+project.egg-info/PKG-INFO
+project.egg-info/SOURCES.txt
+project.egg-info/dependency_links.txt
+project.egg-info/entry_points.txt
+project.egg-info/top_level.txt
