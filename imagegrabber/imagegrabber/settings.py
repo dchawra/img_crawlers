@@ -132,5 +132,5 @@ FEEDS = {
 ROTATING_PROXY_LIST_PATH = '/Users/dwijen/Documents/CODE/NEX.art/img_crawlers/imagegrabber/imagegrabber/proxies.txt'
 
 # run playwright in non-headless mode
-# PLAYWRIGHT_BROWSER_TYPE = "chromium"
-# PLAYWRIGHT_LAUNCH_OPTIONS = {"headless": True, "devtools": True}
+PLAYWRIGHT_BROWSER_TYPE = "chromium"
+# PLAYWRIGHT_LAUNCH_OPTIONS = {"headless": False, "devtools": True}

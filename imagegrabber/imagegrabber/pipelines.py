@@ -4,6 +4,7 @@
 # See: https://docs.scrapy.org/en/latest/topics/item-pipeline.html
 import signal
 
+import scrapy.spiders
 # useful for handling different item types with a single interface
 from itemadapter import ItemAdapter
 import csv
@@ -23,8 +24,11 @@ class ImagegrabberPipeline:
         # Set up a signal handler for interrupt (Ctrl+C)
         signal.signal(signal.SIGINT, self.close_on_interrupt)
 
-    def open_spider(self, spider):
-        self.exporter = CsvItemExporter(open('images.tsv', 'a+b'), delimiter='\t', include_headers_line=True)
+    def open_spider(self, spider: scrapy.spiders.CrawlSpider):
+        # get url of the spider
+        url = spider.start_urls[0].split("/")[-2]
+
+        self.exporter = CsvItemExporter(open(f'images_{url}.tsv', 'a+b'), delimiter='\t', include_headers_line=True)
         self.exporter.start_exporting()
 
     def process_item(self, item, spider):

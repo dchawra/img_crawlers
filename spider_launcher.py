@@ -20,7 +20,7 @@ def main():
         urls = f.readlines()
 
     # submit spiders, no need for threading
-    for url in urls[:1]:
+    for url in urls:
         run_spider(url)
 
 if __name__ == "__main__":

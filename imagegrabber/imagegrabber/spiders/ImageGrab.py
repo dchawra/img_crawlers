@@ -1,3 +1,4 @@
+import logging
 from typing import Iterable
 
 import scrapy
@@ -6,6 +7,8 @@ from scrapy import Request
 from scrapy.spiders import CrawlSpider, Rule
 from scrapy.linkextractors import LinkExtractor
 import re
+
+from scrapy_playwright.page import PageMethod
 
 
 def imgCompare(curr, new):
@@ -27,6 +30,14 @@ class ImagegrabSpider(CrawlSpider):
     allowed_domains = ["www.lacucinaitaliana.it"]
     start_urls = ["https://www.lacucinaitaliana.it/"]
 
+    # playwright_meta = {
+    #     "playwright": True,
+    #     "playwright_include_page": True,
+    #     "playwright_page_methods": [
+    #         PageMethod("wait_for_timeout", 10000),
+    #     ],
+    # }
+
     rules = (
         Rule(LinkExtractor(), callback='parse_page', follow=True),
     )
@@ -45,6 +56,7 @@ class ImagegrabSpider(CrawlSpider):
                 'playwright_include_page': True,
                 'playwright_include_page_content': True
             }
+                      # callback=self.parse_page
         )
 
     def parse_page(self, response: scrapy.http.Response):
@@ -106,21 +118,20 @@ class ImagegrabSpider(CrawlSpider):
             }
 
 
-        # Extract links using CSS selector
-
+        # # Extract links using CSS selector
+        #
         # links = response.css('a')
-
+        #
         # # queue up links for crawling
         # for link in links:
         #     href = link.css('::attr(href)').extract_first()
         #     if href is not None:
-        #
+        #         logging.info(f"Found link: {href}")
         #         # check if it is a domain
         #         if href.startswith('http'):
         #             # check if its the same domain
-        #             topLevel = "/".join(url.split("/")[:3])
+        #             topLevel = "/".join(href.split("/")[:3])
         #             print(topLevel)
-        #             exit()
         #             if topLevel != self.start_urls[0]:
         #                 continue
         #
@@ -130,12 +141,10 @@ class ImagegrabSpider(CrawlSpider):
         #                 'playwright_include_page_content': True
         #             })
         #         elif href.startswith('/'): # check if it is a relative link
-        #             exit()
         #             yield scrapy.Request(response.urljoin(href), meta={
         #                 'playwright': True,
         #                 'playwright_include_page': True,
         #                 'playwright_include_page_content': True
         #             })
         #         else:
-        #             exit()
         #             pass # some other link type, ignore
