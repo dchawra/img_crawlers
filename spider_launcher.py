@@ -1,5 +1,4 @@
 import requests
-from concurrent.futures import ThreadPoolExecutor
 
 SCRAPYD_API_URL = "http://localhost:6800"
 PROJECT_NAME = "imagegrabber"
@@ -21,7 +20,7 @@ def main():
         urls = f.readlines()
 
     # submit spiders, no need for threading
-    for url in urls[0]:
+    for url in urls[:1]:
         run_spider(url)
 
 if __name__ == "__main__":
