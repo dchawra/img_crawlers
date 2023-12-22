@@ -84,11 +84,22 @@ CONCURRENT_REQUESTS_PER_DOMAIN = 16
 ITEM_PIPELINES = {
    "imagegrabber.pipelines.ImagegrabberPipeline": 300,
 }
+# DOWNLOADER_MIDDLEWARES = {
+#    # ...
+#    'rotating_proxies.middlewares.RotatingProxyMiddleware': 610,
+#    'rotating_proxies.middlewares.BanDetectionMiddleware': 620,
+#    # ...
+# }
+# DOWNLOADER_MIDDLEWARES = {
+#     # ...
+#     'scrapy_proxy_pool.middlewares.ProxyPoolMiddleware': 610,
+#     'scrapy_proxy_pool.middlewares.BanDetectionMiddleware': 620,
+#     # ...
+# }
+
 DOWNLOADER_MIDDLEWARES = {
-   # ...
-   'rotating_proxies.middlewares.RotatingProxyMiddleware': 610,
-   'rotating_proxies.middlewares.BanDetectionMiddleware': 620,
-   # ...
+    'scrapy.downloadermiddlewares.httpproxy.HttpProxyMiddleware': 110,
+    'imagegrabber.middlewares.ProxyMiddleware': 100,
 }
 
 
@@ -128,9 +139,13 @@ FEEDS = {
         "fields": ["image_url", "alt_text", "page_url"],
     }
 }
+
 # load proxies
-ROTATING_PROXY_LIST_PATH = '/Users/dwijen/Documents/CODE/NEX.art/img_crawlers/imagegrabber/imagegrabber/proxies.txt'
+# ROTATING_PROXY_LIST_PATH = '/Users/dwijen/Documents/CODE/NEX.art/img_crawlers/imagegrabber/imagegrabber/proxies.txt'
+ROTATING_PROXY_LIST_PATH = '/Users/dwijen/Documents/CODE/NEX.art/img_crawlers/imagegrabber/imagegrabber/proxies_auth.txt'
+PROXY_LIST = '/Users/dwijen/Documents/CODE/NEX.art/img_crawlers/imagegrabber/imagegrabber/proxies_auth.txt'
+
 
 # run playwright in non-headless mode
-PLAYWRIGHT_BROWSER_TYPE = "chromium"
+# PLAYWRIGHT_BROWSER_TYPE = "chromium"
 # PLAYWRIGHT_LAUNCH_OPTIONS = {"headless": False, "devtools": True}

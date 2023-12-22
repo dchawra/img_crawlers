@@ -7,8 +7,10 @@ from scrapy import signals
 
 # useful for handling different item types with a single interface
 from itemadapter import is_item, ItemAdapter
+import random
 
 from scrapy import Request
+import base64
 
 
 class StickyDepthSpiderMiddleware:
@@ -113,3 +115,30 @@ class ImagegrabberDownloaderMiddleware:
 
     def spider_opened(self, spider):
         spider.logger.info("Spider opened: %s" % spider.name)
+
+# Importing base64 library because we'll need it ONLY in case if the proxy we are going to use requires authentication
+
+# Start your middleware class
+class ProxyMiddleware(object):
+
+    def __init__(self, settings):
+        # load our proxy list
+        filepath = settings.get('PROXY_LIST')
+        self.proxies = open(filepath).read().splitlines()
+
+    @classmethod
+    def from_crawler(cls, crawler):
+        stg = crawler.settings
+        return stg
+
+# overwrite process request
+    def process_request(self, request, spider):
+        # Set the location of the proxy
+        curr = random.choice(self.proxies).split("@")
+        request.meta['proxy'] = curr[1]
+
+        # Use the following lines if your proxy requires authentication
+        proxy_user_pass = curr[0]
+        # setup basic authentication for the proxy
+        encoded_user_pass = base64.encodestring(proxy_user_pass)
+        request.headers['Proxy-Authorization'] = 'Basic ' + encoded_user_pass
