@@ -129,7 +129,7 @@ FEEDS = {
     }
 }
 # load proxies
-ROTATING_PROXY_LIST_PATH = '/Users/dwijen/Documents/CODE/NEX.art/imagegrabber/imagegrabber/proxies.txt'
+ROTATING_PROXY_LIST_PATH = '/Users/dwijen/Documents/CODE/NEX.art/img_crawlers/imagegrabber/imagegrabber/proxies.txt'
 
 # run playwright in non-headless mode
 # PLAYWRIGHT_BROWSER_TYPE = "chromium"

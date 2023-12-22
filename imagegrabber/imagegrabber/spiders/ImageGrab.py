@@ -31,11 +31,10 @@ class ImagegrabSpider(CrawlSpider):
         Rule(LinkExtractor(), callback='parse_page', follow=True),
     )
 
-    def __init__(self, url, *args, **kwargs):
+    def __init__(self, url="", *args,**kwargs):
         super(ImagegrabSpider, self).__init__(*args, **kwargs)
         self.start_urls = [url]
-        self.allowed_domains = [url.split("/")[:-1]]
-
+        self.allowed_domains = [url.split("/")[-2]]
 
     def start_requests(self) -> Iterable[Request]:
         # for url in self.start_urls:
