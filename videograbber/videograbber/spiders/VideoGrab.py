@@ -146,7 +146,8 @@ yt_dlp_supported = ["abc", "abcnews", "abcotvs", "abematv", "academicearth", "ac
 class VideograbSpider(CrawlSpider):
     name = "VideoGrab"
     allowed_domains = ["www.pexels.com"]
-    start_urls = ["https://www.pexels.com/videos/"]
+    # start_urls = ["https://www.pexels.com/videos/"]
+    start_urls = ["https://www.pexels.com/video/woman-with-christmas-cookies-5791995/"]
 
     rules = (
         # Rule(LinkExtractor(), callback='parse_page', follow=True),
@@ -173,6 +174,7 @@ class VideograbSpider(CrawlSpider):
                       )
 
     async def parse_page(self, response: scrapy.http.Response):
+        logging.info(f"PARSING PAGE: {response.url} -----------------------------------------------------------------")
         page: Page = response.meta["playwright_page"]
         topStart = "/".join(response.url.split("/")[:3])
 
@@ -199,19 +201,30 @@ class VideograbSpider(CrawlSpider):
         # use regex to find all urls or src or href etc. in the page content
 
         # all hrefs
-        hrefs = re.findall(r'href=[\'"]?([^\'" >]+)', content)
-        logging.info(f"Found {len(hrefs)} hrefs")
-        logging.info(hrefs)
-        # all srcs
-        srcs = re.findall(r'src=[\'"]?([^\'" >]+)', content)
-        logging.info(f"Found {len(srcs)} srcs")
-        # all urls
-        urls = re.findall(r'url\([\'"]?([^\'" >]+)', content)
-        logging.info(f"Found {len(urls)} urls")
+        # hrefs = re.findall(r'href=[\'"]?([^\'" >]+)', content)
+        # logging.info(f"Found {len(hrefs)} hrefs")
+        # logging.info(hrefs)
+        # # all srcs
+        # srcs = re.findall(r'src=[\'"]?([^\'" >]+)', content)
+        # logging.info(f"Found {len(srcs)} srcs")
+        # # all urls
+        # urls = re.findall(r'url\([\'"]?([^\'" >]+)', content)
+        # logging.info(f"Found {len(urls)} urls")
+
+        ALL_URLS = re.findall(r'(http|ftp|https):\/\/([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])', content)
+
+        for i in range(len(ALL_URLS)):
+            ALL_URLS[i] = ALL_URLS[i][0] + "://" + ALL_URLS[i][1] + ALL_URLS[i][2]
+
+        #deduplicate
+        ALL_URLS = list(set(ALL_URLS))
 
         # merge all lists
-        allLinks = hrefs + srcs + urls
+        allLinks = ALL_URLS
         logging.info(f"Found {len(allLinks)} links")
+
+        if len(allLinks) == 0:
+            raise CloseSpider("No links found")
 
         # if it is a half link, add the domain
         for i in range(len(allLinks)):
@@ -230,11 +243,12 @@ class VideograbSpider(CrawlSpider):
                     'video_url': link,
                     'page_url': response.url,
                 }
+                continue
 
             # re.findall("http(?:s)?:\/\/(?:[\w-]+\.)*([\w-]{1,63})(?:\.(?:\w{3}|\w{2}))(?:$|\/)", link) returns the domain
             # check if the domain is in the yt_dlp_supported list
-            elif re.findall("http(?:s)?:\/\/(?:[\w-]+\.)*([\w-]{1,63})(?:\.(?:\w{3}|\w{2}))(?:$|\/)", link)[0] in yt_dlp_supported:
-
+            l = re.findall("http(?:s)?:\/\/(?:[\w-]+\.)*([\w-]{1,63})(?:\.(?:\w{3}|\w{2}))(?:$|\/)", link)
+            if l is not None and len(l) > 0 and l[0] in yt_dlp_supported:
                 logging.info(link + " is a yt_dlp_supported")
 
                 yield {
@@ -245,20 +259,22 @@ class VideograbSpider(CrawlSpider):
                 logging.info(link + " is a leftover")
                 leftovers.append(link)
 
+        # for i in range(len(leftovers)):
+        #     logging.info(f"Leftover {i}: {leftovers[i]}")
+        # exit()
+
 
         # send all other links to the queue
-        # for link in leftovers:
-        #     yield scrapy.Request(link, meta={
-        #         'playwright': True,
-        #         'playwright_include_page': True,
-        #         'playwright_include_page_content': True
-        #     },
-        #      callback=self.parse_page
-        #  )
+        for link in leftovers:
+            yield scrapy.Request(link, meta={
+                'playwright': True,
+                'playwright_include_page': True,
+                'playwright_include_page_content': True
+            },
+             callback=self.parse_page
+         )
 
 
-        #
-        #
         # imgs = soup.find_all("img")
         #
         # for img in imgs:
@@ -302,47 +318,48 @@ class VideograbSpider(CrawlSpider):
         #         'alt_text': alt,
         #         'page_url': response.url,
         #     }
-        #
-        # # Extract links using CSS selector
-        #
-        links = response.css('a')
-        logging.info(f"Found {len(links)} links")
-        #
-        # # queue up links for crawling
 
-        for link in links:
-            href = link.css('::attr(href)').extract_first()
-            if href is not None:
-                logging.info(f"Found link: {href}")
-                # check if it is a domain
-                if href.startswith('http'):
-                    # check if its the same domain
-                    topLevel = "/".join(href.split("/")[:3])
-                    if topLevel != topStart:
-                        continue
 
-                    logging.info(f"yielding link: {href}")
-                    yield scrapy.Request(href, meta={
-                        'playwright': True,
-                        'playwright_include_page': True,
-                        'playwright_include_page_content': True
-                    },
-                                         callback=self.parse_page
-                                         )
-                elif href.startswith('/'):  # check if it is a relative link
-                    # add domain to relative link
-                    href = urljoin(topStart, href)
-
-                    logging.info(f"yielding link: {href}")
-                    yield scrapy.Request(href, meta={
-                        'playwright': True,
-                        'playwright_include_page': True,
-                        'playwright_include_page_content': True
-                    },
-                                         callback=self.parse_page
-                                         )
-                else:
-                    pass  # some other link type, ignore
+        # Extract links using CSS selector
+        #
+        # links = response.css('a')
+        # logging.info(f"Found {len(links)} links")
+        # #
+        # # # queue up links for crawling
+        #
+        # for link in links:
+        #     href = link.css('::attr(href)').extract_first()
+        #     if href is not None:
+        #         logging.info(f"Found link: {href}")
+        #         # check if it is a domain
+        #         if href.startswith('http'):
+        #             # check if its the same domain
+        #             topLevel = "/".join(href.split("/")[:3])
+        #             if topLevel != topStart:
+        #                 continue
+        #
+        #             logging.info(f"yielding link: {href}")
+        #             yield scrapy.Request(href, meta={
+        #                 'playwright': True,
+        #                 'playwright_include_page': True,
+        #                 'playwright_include_page_content': True
+        #             },
+        #                                  callback=self.parse_page
+        #                                  )
+        #         elif href.startswith('/'):  # check if it is a relative link
+        #             # add domain to relative link
+        #             href = urljoin(topStart, href)
+        #
+        #             logging.info(f"yielding link: {href}")
+        #             yield scrapy.Request(href, meta={
+        #                 'playwright': True,
+        #                 'playwright_include_page': True,
+        #                 'playwright_include_page_content': True
+        #             },
+        #                                  callback=self.parse_page
+        #                                  )
+        #         else:
+        #             pass  # some other link type, ignore
         #
         # close page after we're done with it
         await asyncio.sleep(1)

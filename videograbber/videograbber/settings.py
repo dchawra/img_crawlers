@@ -28,8 +28,8 @@ SCHEDULER_MEMORY_QUEUE = "scrapy.squeues.FifoMemoryQueue"
 DEPTH_LIMIT = 2
 
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
-CONCURRENT_REQUESTS = 3
-REACTOR_THREADPOOL_MAXSIZE = 2
+CONCURRENT_REQUESTS = 8
+REACTOR_THREADPOOL_MAXSIZE = 4
 LOG_LEVEL = "INFO"
 COOKIES_ENABLED = False
 RETRY_ENABLED = False
@@ -45,7 +45,7 @@ DOWNLOAD_HANDLERS = {
 # See also autothrottle settings and docs
 # DOWNLOAD_DELAY = 2
 # The download delay setting will honor only one of:
-CONCURRENT_REQUESTS_PER_DOMAIN = 3
+CONCURRENT_REQUESTS_PER_DOMAIN = 8
 #CONCURRENT_REQUESTS_PER_IP = 16
 
 # Disable cookies (enabled by default)
@@ -146,4 +146,4 @@ PROXY_LIST = '/Users/dwijen/Documents/CODE/NEX.art/img_crawlers/videograbber/vid
 
 # run playwright in non-headless mode
 PLAYWRIGHT_BROWSER_TYPE = "firefox"
-PLAYWRIGHT_LAUNCH_OPTIONS = {"headless": False}
+PLAYWRIGHT_LAUNCH_OPTIONS = {"headless": True}
